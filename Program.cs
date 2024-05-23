@@ -1,3 +1,5 @@
+using MongoDB.Driver;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -13,6 +15,54 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+var connectionString = Environment.GetEnvironmentVariable("MONGODB_URI");
+if (connectionString == null)
+{
+    Console.WriteLine("Please set your MONGODB_URI");
+    Environment.Exit(0);
+}
+
+
+var client = new MongoClient(connectionString);
+
+var forecasts = new Models.Forecast[]{
+  new Models.Forecast{
+    Temp = 45,
+    Description = "We're screwed",
+    Windspeed = 60,
+  },
+  new Models.Forecast{
+    Temp = 40,
+    Description = "Fewww...",
+    Windspeed = 29,
+  },
+  new Models.Forecast{
+    Temp = 95,
+    Description = "SO HOT!!!",
+    Windspeed = 10,
+  },
+  new Models.Forecast{
+    Temp = -20,
+    Description = "What even is this weather",
+    Windspeed = 40,
+  },
+  new Models.Forecast{
+    Temp = -200,
+    Description = "...",
+    Windspeed = 32,
+  },
+  new Models.Forecast{
+    Temp =  75,
+    Description = "...",
+    Windspeed = 12,
+  }
+};
+
+var forcastCollection = client.GetDatabase("local").GetCollection<Models.Forecast>("forecasts");
+
+
+forcastCollection.InsertMany(forecasts);
 
 app.UseHttpsRedirection();
 
